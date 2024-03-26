@@ -85,6 +85,7 @@ module.exports = async function (deployer: Deployer) {
   Reporter.reportContracts(
     ['L2TokenReceiver', await l2TokenReceiver.getAddress()],
     ['L2MessageReceiver', await l2MessageReceiver.getAddress()],
+    ['Staked Ether', stETH],
     ['AGEN', await AGEN.getAddress()],
   );
 };

@@ -25,7 +25,7 @@ contract L2TokenReceiver is IL2TokenReceiver, OwnableUpgradeable, UUPSUpgradeabl
         address nonfungiblePositionManager_,
         SwapParams memory params_
     ) external initializer {
-        __Ownable_init();
+        __Ownable_init(router_);
         __UUPSUpgradeable_init();
 
         router = router_;
