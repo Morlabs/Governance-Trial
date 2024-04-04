@@ -1,7 +1,5 @@
 import { Deployer, Reporter, UserStorage } from '@solarity/hardhat-migrate';
-
 import { parseConfig } from './helpers/config-parser';
-
 import {
   AGEN__factory,
   ERC1967Proxy__factory,
@@ -13,13 +11,18 @@ import {
   WStETHMock__factory,
 } from '@/generated-types/ethers';
 import { IL2TokenReceiver } from '@/generated-types/ethers/contracts/L2TokenReceiver';
+import { Proxy__factory } from '@/generated-types/ethers/factories/contracts';
+import { ethers, upgrades } from 'hardhat';
+import { UpgradeOptions } from '@openzeppelin/hardhat-upgrades';
 
 module.exports = async function (deployer: Deployer) {
   const config = parseConfig(await deployer.getChainId());
-  console.log({ config });
+  const [owner] = await ethers.getSigners();
+  console.log({ config, toDeployMocks: config.L2 });
   let WStETH: string;
   let swapRouter: string;
   let nonfungiblePositionManager: string;
+  let stETH: string;
 
   if (config.L2) {
     WStETH = config.L2.wStEth;
@@ -29,7 +32,7 @@ module.exports = async function (deployer: Deployer) {
     // deploy mock
     console.log('DEPLOYING MOCKS!!!');
     const stETHMock = await deployer.deploy(StETHMock__factory, [], { name: 'StETH on L2' });
-    const stETH = await stETHMock.getAddress();
+    stETH = await stETHMock.getAddress();
     console.log('stETH ADD: ', stETH);
 
     const wStEthMock = await deployer.deploy(WStETHMock__factory, [stETH], { name: 'Wrapped stETH on L2' });
@@ -44,14 +47,53 @@ module.exports = async function (deployer: Deployer) {
     nonfungiblePositionManager = await nonfungiblePositionManagerMock.getAddress();
   }
 
-  const AGEN = await deployer.deploy(AGEN__factory, [config.cap]);
-  if (!UserStorage.has('AGEN')) UserStorage.set('AGEN', await AGEN.getAddress());
+  async function deployMockStakedETH() {
+    const stakedETH = await deployer.deploy(StETHMock__factory, [], { name: 'StETH on Testnet' });
+    const stakedETHProxy = await deployer.deploy(ERC1967Proxy__factory, [stakedETH, '0x'], {
+      name: 'Mock Staked ETH Proxy'
+    })
+    stETH = await stakedETH.getAddress();
+    console.log('stETH ADD: ', { stETH, owner: owner.getAddress() });
 
-  // const AGENProxy = await deployer.deploy()
+    // await stakedETH.initialize(owner.address);
+    const StakedETHMock = StETHMock__factory.connect(
+      await stakedETHProxy.getAddress(),
+      await deployer.getSigner()
+    )
+    await StakedETHMock.initialize(owner.address)
+    // const swapRouterMock = await deployer.deploy(SwapRouterMock__factory);
+    // swapRouter = await swapRouterMock.getAddress();
+    // console.log('swapRouterMock ADD: ', swapRouter);
+
+    // const nonfungiblePositionManagerMock = await deployer.deploy(NonfungiblePositionManagerMock__factory);
+    // nonfungiblePositionManager = await nonfungiblePositionManagerMock.getAddress();
+  }
+
+  await deployMockStakedETH();
+
+  const AGENTokenImpl = await deployer.deploy(AGEN__factory, [], { name: "AGEN Token" });
+  const AGENTokenProxy = await deployer.deploy(ERC1967Proxy__factory, [AGENTokenImpl, '0x'], {
+    name: "AGEN Token Proxy"
+  })
+
+  const AGENToken = AGEN__factory.connect(
+    await AGENTokenProxy.getAddress(),
+    await deployer.getSigner()
+  )
+
+  await AGENToken.initialize(owner.address)
+
+  if (!UserStorage.has('AGEN')) UserStorage.set('AGEN', AGENTokenImpl);
+
+  // const AGENProxy = await deployer.deploy(Proxy__factory, []);
+
+
+  console.log({ AGENTokenImpl: Object.keys(AGENTokenImpl), AGENTokenProxy: Object.keys(AGENTokenProxy) })
+  // console.log({ agenProxyAddress, implementationContract })
 
   const swapParams: IL2TokenReceiver.SwapParamsStruct = {
     tokenIn: WStETH,
-    tokenOut: AGEN,
+    tokenOut: AGENTokenImpl,
     fee: config.swapParams.fee,
     sqrtPriceLimitX96: config.swapParams.sqrtPriceLimitX96,
   };
@@ -80,12 +122,13 @@ module.exports = async function (deployer: Deployer) {
   );
   await l2MessageReceiver.L2MessageReceiver__init();
 
-  await AGEN.transferOwnership(l2MessageReceiver);
+  // await AGENTokenImpl.transferOwnership(l2MessageReceiver)
+  // await AGENTokenImpl.transferOwnership((await l2MessageReceiver.getAddress()).toString())
 
   Reporter.reportContracts(
     ['L2TokenReceiver', await l2TokenReceiver.getAddress()],
     ['L2MessageReceiver', await l2MessageReceiver.getAddress()],
     ['Staked Ether', stETH],
-    ['AGEN', await AGEN.getAddress()],
+    ['AGEN', await AGENTokenImpl.getAddress()],
   );
 };

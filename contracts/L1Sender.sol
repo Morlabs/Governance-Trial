@@ -33,7 +33,7 @@ contract L1Sender is IL1Sender, OwnableUpgradeable, UUPSUpgradeable {
         RewardTokenConfig calldata rewardTokenConfig_,
         DepositTokenConfig calldata depositTokenConfig_
     ) external initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
 
         setDistribution(distribution_);

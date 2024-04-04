@@ -5,6 +5,7 @@ import '@nomiclabs/hardhat-web3';
 import '@solarity/hardhat-markup';
 import '@solarity/hardhat-migrate';
 import '@typechain/hardhat';
+import '@openzeppelin/hardhat-upgrades'
 import * as dotenv from 'dotenv';
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
@@ -129,6 +130,7 @@ const config: HardhatUserConfig = {
       avalanche: `${process.env.AVALANCHE_KEY}`,
       arbitrumGoerli: `${process.env.ETHERSCAN_KEY}`,
       arbitrumSepolia: `${process.env.ETHERSCAN_KEY}`,
+      baseSepolia: `${process.env.ETHERSCAN_KEY}`
     },
   },
   migrate: {

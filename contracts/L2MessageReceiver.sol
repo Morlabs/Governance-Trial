@@ -19,7 +19,7 @@ contract L2MessageReceiver is IL2MessageReceiver, OwnableUpgradeable, UUPSUpgrad
     }
 
     function L2MessageReceiver__init() external initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
     }
 

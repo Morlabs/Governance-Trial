@@ -38,16 +38,6 @@ contract StETHMock is
     //     totalPooledEther = 10 ** decimals();
     // }
 
-    function initialize(address initialOwner) public initializer {
-        __ERC20_init("Staked Ether Mock", "stETHMock");
-        __Ownable_init(initialOwner);
-        __ERC20Permit_init("stETHMock");
-        __ERC20Votes_init();
-        __UUPSUpgradeable_init();
-        __ERC20Capped_init(100000 * 10 ** decimals());
-        _mint(msg.sender, 1000 * 10 ** decimals());
-    }
-
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function _update(
@@ -109,10 +99,10 @@ contract StETHMock is
         return tokensAmount;
     }
 
-    function _transfer(address _sender, address _recipient, uint256 _amount) internal override {
-        uint256 _sharesToTransfer = getSharesByPooledEth(_amount);
-        _transferShares(_sender, _recipient, _sharesToTransfer);
-    }
+    // function _transfer(address _sender, address _recipient, uint256 _amount) internal override {
+    //     uint256 _sharesToTransfer = getSharesByPooledEth(_amount);
+    //     _transferShares(_sender, _recipient, _sharesToTransfer);
+    // }
 
     function _sharesOf(address _account) internal view returns (uint256) {
         return shares[_account];
@@ -138,5 +128,16 @@ contract StETHMock is
         shares[_recipient] += _sharesAmount;
 
         return totalShares;
+    }
+
+    function initialize(address initialOwner) public initializer {
+        __ERC20_init("Staked Ether Mock", "MSETH");
+        __Ownable_init(initialOwner);
+        __ERC20Permit_init("MSETH");
+        __ERC20Votes_init();
+        __UUPSUpgradeable_init();
+        __ERC20Capped_init(100000 * 10 ** decimals());
+        _mintShares(address(this), 3000 * 10 ** decimals());
+        totalPooledEther = 10 ** decimals();
     }
 }

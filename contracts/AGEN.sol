@@ -35,10 +35,10 @@ contract AGEN is
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function initialize(address initialOwner) public initializer {
-        __ERC20_init("AGEN", "AGEN");
+        __ERC20_init("AGNT", "AGNT");
         __ERC20Burnable_init();
         __Ownable_init(initialOwner);
-        __ERC20Permit_init("AGEN");
+        __ERC20Permit_init("AGNT");
         __ERC20Votes_init();
         __UUPSUpgradeable_init();
         __ERC20Capped_init(21000000 * 10 ** decimals());

@@ -56,7 +56,7 @@ contract Distribution is IDistribution, OwnableUpgradeable, UUPSUpgradeable {
         address l1Sender_,
         Pool[] calldata poolsInfo_
     ) external initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
 
         for (uint256 i; i < poolsInfo_.length; ++i) {
@@ -77,6 +77,17 @@ contract Distribution is IDistribution, OwnableUpgradeable, UUPSUpgradeable {
         pools.push(pool_);
 
         emit PoolCreated(pools.length - 1, pool_);
+    }
+
+    function getPools() external view onlyOwner returns (Pool[] memory) {
+        // Create an array to hold the pool data
+        Pool[] memory poolData = new Pool[](pools.length);
+
+        // Iterate over all pools and populate the array
+        for (uint256 i = 0; i < pools.length; i++) {
+            poolData[i] = pools[i];
+        }
+        return poolData;
     }
 
     function editPool(uint256 poolId_, Pool calldata pool_) external onlyOwner poolExists(poolId_) {
