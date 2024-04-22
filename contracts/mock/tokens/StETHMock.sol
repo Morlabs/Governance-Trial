@@ -32,12 +32,6 @@ contract StETHMock is
         _disableInitializers();
     }
 
-    // constructor() ERC20Upgradeable("Staked Ether Mock", "stETHMock") {
-    //     _mintShares(address(this), 10 ** decimals());
-
-    //     totalPooledEther = 10 ** decimals();
-    // }
-
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function _update(
@@ -46,6 +40,8 @@ contract StETHMock is
         uint256 value
     ) internal override(ERC20Upgradeable, ERC20VotesUpgradeable, ERC20CappedUpgradeable) {
         super._update(from, to, value);
+        uint256 _sharesToTransfer = getSharesByPooledEth(value);
+        _transferShares(from, to, _sharesToTransfer);
     }
 
     function mint(address _account, uint256 _amount) external {
@@ -99,7 +95,7 @@ contract StETHMock is
         return tokensAmount;
     }
 
-    // function _transfer(address _sender, address _recipient, uint256 _amount) internal override {
+    // function _transfer(address _sender, address _recipient, uint256 _amount) internal {
     //     uint256 _sharesToTransfer = getSharesByPooledEth(_amount);
     //     _transferShares(_sender, _recipient, _sharesToTransfer);
     // }

@@ -22,6 +22,7 @@ module.exports = async function (deployer: Deployer) {
   if (config.L1) {
     stETH = config.L1.stEth;
     wStEth = config.L1.wStEth;
+    console.log('DEPLOY[DEFAULT CONFIG]', { stETH_Addy: stETH })
   } else {
     // deploy mock
     const stETHMock = await deployer.deploy(StETHMock__factory, { name: 'StETH on L1' });
@@ -29,6 +30,7 @@ module.exports = async function (deployer: Deployer) {
 
     const wStEthMock = await deployer.deploy(WStETHMock__factory, [stETH], { name: 'wStETH on L1' });
     wStEth = await wStEthMock.getAddress();
+    console.log('DEPLOYING MOCKS', { stETH_Addy: stETH })
   }
 
   let lzEndpointL1: string;
@@ -76,6 +78,7 @@ module.exports = async function (deployer: Deployer) {
   const l1Sender = L1Sender__factory.connect(await l1SenderProxy.getAddress(), await deployer.getSigner());
   await l1Sender.L1Sender__init(distribution, rewardTokenConfig, depositTokenConfig);
 
+  console.log({ stETH_Before_Use: stETH })
   await distribution.Distribution_init(stETH, l1Sender, config.pools || []);
 
   if (config.pools) {

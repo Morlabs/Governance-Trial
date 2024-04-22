@@ -1,12 +1,12 @@
 {
-  "cap": "1000000000000000000000000",
+  "cap": "42000000000000000000000000",
   "chainsConfig": {
     "senderChainId": 10161,
     "receiverChainId": 10231
   },
   "pools": [
     {
-      "payoutStart": 1732834800,
+      "payoutStart": 1712835900,
       "decreaseInterval": 86400,
       "withdrawLockPeriod": 120,
       "claimLockPeriod": 60,
@@ -17,38 +17,36 @@
       "isPublic": true
     },
     {
-      "payoutStart": 1735426800,
+      "payoutStart": 1712835900,
       "decreaseInterval": 86400,
-      "withdrawLockPeriod": 120,
-      "claimLockPeriod": 60,
-      "withdrawLockPeriodAfterStake": 30,
-      "initialReward": "16800000000000000000000",
-      "rewardDecrease": "2468994701000000000",
+      "withdrawLockPeriod": 604800,
+      "claimLockPeriod": 7776000,
+      "withdrawLockPeriodAfterStake": 604800,
+      "initialReward": "3456000000000000000000",
+      "rewardDecrease": "592558728240000000",
       "minimalStake": "1000000000000000",
       "isPublic": true
     },
     {
-      "payoutStart": 1734735600,
-      "decreaseInterval": 60,
-      "withdrawLockPeriod": 1,
-      "claimLockPeriod": 1,
-      "withdrawLockPeriodAfterStake": 30,
-      "initialReward": "150000000000000000000",
-      "rewardDecrease": "100000000000000000000",
-      "minimalStake": "1000000000000000",
+      "payoutStart": 1712835900,
+      "decreaseInterval": 86400,
+      "withdrawLockPeriod": 0,
+      "claimLockPeriod": 7776000,
+      "withdrawLockPeriodAfterStake": 0,
+      "initialReward": "3456000000000000000000",
+      "rewardDecrease": "592558728240000000",
+      "minimalStake": "0",
       "isPublic": false,
       "whitelistedUsers": [
-        "0x901F2d23823730fb7F2356920e0E273EFdCdFe17",
-        "0x19ec1E4b714990620edf41fE28e9a1552953a7F4"
+        "0x2b629Fd3dE644396AF2787EEba4829d1eA8959A4"
       ],
       "amounts": [
-        "1",
-        "1"
+        "65"
       ]
     }
   ],
   "L1": {
-    "stEth": "0xe6D01D086a844a61641C75f1BCA572e7aa70e154",
+    "stEth": "0xae5dEC29D8c01ABC560062c4D6AA8841455B7218",
     "wStEth": "0xE7d86F503F3dA0DEF5660420F667BF873d3D6A8f"
   },
   "L2": {
