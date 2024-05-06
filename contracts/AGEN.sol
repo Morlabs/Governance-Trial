@@ -27,6 +27,10 @@ contract AGEN is
     OwnableUpgradeable,
     UUPSUpgradeable
 {
+    // 1 is seen as false & 2 seen as true
+    uint public enableTransfers = 2;
+    event Log(string message, uint256 value);
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -34,15 +38,31 @@ contract AGEN is
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    function initialize(address initialOwner) public initializer {
-        __ERC20_init("AGNT", "AGNT");
+    function initialize(address initialOwner, address[] memory coSigners) public initializer {
+        __ERC20_init("Test Based Tokens", "TBT");
         __ERC20Burnable_init();
         __Ownable_init(initialOwner);
-        __ERC20Permit_init("AGNT");
+        __ERC20Permit_init("TBT");
         __ERC20Votes_init();
         __UUPSUpgradeable_init();
-        __ERC20Capped_init(21000000 * 10 ** decimals());
-        _mint(msg.sender, 1000 * 10 ** decimals());
+
+        uint256 capAmount = 21000000 * 10 ** decimals();
+        __ERC20Capped_init(capAmount);
+
+        uint256 totalMintAmount = 1000000 * 10 ** decimals();
+        uint256 numRecipients = coSigners.length + 1;
+
+        require(totalMintAmount <= capAmount, "Total mint amount exceeds cap");
+        require(numRecipients > 0, "No recipients provided");
+        uint256 mintAmount = totalMintAmount / numRecipients;
+        emit Log("Minted to all three wallets", mintAmount);
+        //enableTransfers = 1;
+
+        _mint(initialOwner, mintAmount);
+
+        for (uint256 i = 0; i < coSigners.length; i++) {
+            _mint(coSigners[i], mintAmount);
+        }
     }
 
     function cap() public view override(ERC20CappedUpgradeable, IAGEN) returns (uint256) {
@@ -66,7 +86,14 @@ contract AGEN is
         address to,
         uint256 value
     ) internal override(ERC20Upgradeable, ERC20VotesUpgradeable, ERC20CappedUpgradeable) {
+        if (enableTransfers == 1) {
+            revert("Transfers are currently disabled");
+        }
         super._update(from, to, value);
+    }
+
+    function setEnableTransfers(uint enabled) external onlyOwner {
+        enableTransfers = enabled;
     }
 
     function nonces(address owner) public view override(ERC20PermitUpgradeable, NoncesUpgradeable) returns (uint256) {

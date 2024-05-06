@@ -30,18 +30,14 @@ module.exports = async function (deployer: Deployer) {
     nonfungiblePositionManager = config.L2.nonfungiblePositionManager;
   } else {
     // deploy mock
-    console.log('DEPLOYING MOCKS!!!');
     const stETHMock = await deployer.deploy(StETHMock__factory, [], { name: 'StETH on L2' });
     stETH = await stETHMock.getAddress();
-    console.log('stETH ADD: ', stETH);
 
     const wStEthMock = await deployer.deploy(WStETHMock__factory, [stETH], { name: 'Wrapped stETH on L2' });
     WStETH = await wStEthMock.getAddress();
-    console.log('wStEthMock ADD: ', WStETH);
 
     const swapRouterMock = await deployer.deploy(SwapRouterMock__factory);
     swapRouter = await swapRouterMock.getAddress();
-    console.log('swapRouterMock ADD: ', swapRouter);
 
     const nonfungiblePositionManagerMock = await deployer.deploy(NonfungiblePositionManagerMock__factory);
     nonfungiblePositionManager = await nonfungiblePositionManagerMock.getAddress();
@@ -81,12 +77,11 @@ module.exports = async function (deployer: Deployer) {
     await deployer.getSigner()
   )
 
-  await AGENToken.initialize(owner.address)
+  await AGENToken.initialize(owner.address, ['0xCbcb2a6E6b4ed4a8D281709c831960a31547f738', '0x552375B8BC807F30065Dca9A5828B645D64F53Ab'])
 
   if (!UserStorage.has('AGEN')) UserStorage.set('AGEN', AGENTokenImpl);
 
   // const AGENProxy = await deployer.deploy(Proxy__factory, []);
-
 
   console.log({ AGENTokenImpl: Object.keys(AGENTokenImpl), AGENTokenProxy: Object.keys(AGENTokenProxy) })
   // console.log({ agenProxyAddress, implementationContract })
